@@ -1,0 +1,205 @@
+/*
+ ========================================================================================
+ Name        : Mini_project2.c
+ Author      : Ahmed Saeed
+ Version     : 1.0.0
+ Description : Stop Watch Project
+ Date        : 23/08/2022
+ ========================================================================================
+ */
+
+/* ***************************** Includes Section Start ***************************** */
+#include<avr/io.h>
+#include<avr/interrupt.h>
+#include<util/delay.h>
+/* ***************************** Includes Section End   ***************************** */
+
+/* global variable contain the ticks count of the timer */
+unsigned char led1tick = 0;
+unsigned char led2tick = 0;
+unsigned char led3tick = 0;
+unsigned char led4tick = 0;
+unsigned char led5tick = 0;
+unsigned char led1 = 0;
+unsigned char led2 = 0;
+unsigned char led3 = 0;
+unsigned char led4 = 0;
+unsigned char led5 = 0;
+unsigned char led6 = 0;
+
+ISR(INT0_vect)
+{
+
+}
+
+ISR(INT1_vect)
+{
+
+}
+
+ISR(INT2_vect)
+{
+
+}
+
+
+/* Interrupt Service Routine for timer0 compare mode */
+ISR(TIMER1_COMPA_vect)
+{
+	led1tick++;
+	led2tick++;
+	led3tick++;
+	led4tick++;
+	led5tick++;
+
+	led1++;
+
+	if (led1tick == 10)
+	{
+		led1 = 0;
+		led2++;
+		led1tick = 0;
+	}
+
+	if (led2tick == 60)
+	{
+		led1 = 0;
+		led2 = 0;
+		led3++;
+		led2tick = 0;
+	}
+
+	if (led3tick == 599)
+	{
+		led1 = 0;
+		led2 = 0;
+		led3 = 0;
+		led4++;
+		led3tick = 0;
+	}
+
+	if (led4tick == 3600)
+	{
+		led1 = 0;
+		led2 = 0;
+		led3 = 0;
+		led4 = 0;
+		led5++;
+		led4tick = 0;
+	}
+
+	if (led5tick == 36000)
+	{
+		led1 = 0;
+		led2 = 0;
+		led3 = 0;
+		led4 = 0;
+		led5 = 0;
+		led6++;
+		led5tick = 0;
+	}
+
+	if ((led6 == 2) && (led5 == 4))
+	{
+		led1 = 0;
+		led2 = 0;
+		led3 = 0;
+		led4 = 0;
+		led5 = 0;
+		led6 = 0;
+		led1tick = 0;
+		led2tick = 0;
+		led3tick = 0;
+		led4tick = 0;
+		led5tick = 0;
+	}
+}
+
+void INT0_Init(void)
+{
+	DDRD  &= (~(1<<PD2));  // Configure INT1/PD3 as input pin
+	PORTD |= (1<<PD2);
+	// Trigger INT1 with the falling edge
+	MCUCR |= (1<<ISC01);
+	MCUCR &= ~(1<<ISC00);
+	GICR  |= (1<<INT0);    // Enable external interrupt pin INT1
+}
+
+void INT1_Init(void)
+{
+	DDRD  &= (~(1<<PD3));  // Configure INT1/PD3 as input pin
+	// Trigger INT1 with the falling edge
+	MCUCR |= (1<<ISC11) | (1<<ISC10);
+	GICR  |= (1<<INT1);    // Enable external interrupt pin INT1
+}
+
+void INT2_Init(void)
+{
+	DDRB   &= (~(1<<PB2));   // Configure INT2/PB2 as input pin
+	PORTB |= (1<<PB2);
+	MCUCSR &= (~(1<<ISC2));     // Trigger INT2 with the raising edge
+	GICR   |= (1<<INT2);	 // Enable external interrupt pin INT2
+}
+
+
+void Timer1_CTC_Init(void)
+{
+	TCNT1 = 0;		/* Set timer1 initial count to zero */
+
+	OCR1A = 500;    /* Set the Compare value to 125 ((125/500) * 100 = 25%) */
+
+	TIMSK |= (1<<OCIE1A); /* Enable Timer1 Compare A Interrupt */
+
+	/* Configure timer control register TCCR1A
+	 * 1. Disconnect OC1A and OC1B  COM1A1=0 COM1A0=0 COM1B0=0 COM1B1=0
+	 * 2. FOC1A=1 FOC1B=0
+	 * 3. CTC Mode WGM10=0 WGM11=0 (Mode Number 4)
+	 */
+	TCCR1A = 0;
+
+	/* Configure timer control register TCCR1B
+	 * 1. CTC Mode WGM12=1 WGM13=0 (Mode Number 4)
+	 * 2. Prescaler = F_CPU/8 CS10=0 CS11=1 CS12=0
+	 */
+	TCCR1B = (1<<WGM12) | (1<<CS11);
+}
+
+void print(void)
+{
+	PORTA = (PORTA & 0xC0) | (0x01 & 0x3F);
+	PORTC = (PORTC & 0xF0) | (led1 & 0x0F);
+	_delay_ms(2);
+	PORTA = (PORTA & 0xC0) | (0x02 & 0x3F);
+	PORTC = (PORTC & 0xF0) | (led2 & 0x0F);
+	_delay_ms(2);
+	PORTA = (PORTA & 0xC0) | (0x04 & 0x3F);
+	PORTC = (PORTC & 0xF0) | (led3 & 0x0F);
+	_delay_ms(2);
+	PORTA = (PORTA & 0xC0) | (0x08 & 0x3F);
+	PORTC = (PORTC & 0xF0) | (led4 & 0x0F);
+	_delay_ms(2);
+	PORTA = (PORTA & 0xC0) | (0x10 & 0x3F);
+	PORTC = (PORTC & 0xF0) | (led5 & 0x0F);
+	_delay_ms(2);
+	PORTA = (PORTA & 0xC0) | (0x20 & 0x3F);
+	PORTC = (PORTC & 0xF0) | (led6 & 0x0F);
+	_delay_ms(2);
+}
+
+
+int main(void)
+{
+	SREG |= (1<<7);       // Enable global interrupts by setting I-bit
+	DDRA |= 0x3F;
+	PORTA &= 0xC0;
+
+	DDRC |= 0x0F;            // Configure the led pin as output pin.
+	PORTC &= 0xF0;           // LED is off at the beginning (Positive Logic).
+
+	Timer1_CTC_Init();    // Start the timer.
+
+    while(1)
+    {
+        print();
+    }
+}
