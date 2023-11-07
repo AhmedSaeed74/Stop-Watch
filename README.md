@@ -6,7 +6,7 @@ Welcome to the Stop Watch System, a versatile timekeeping application built usin
 
 ## Features
 
-- **Timer-Based Counting:** The system uses Timer1 in ATmega16 with CTC mode to count time, ensuring accurate and reliable time measurement.
+- **Timer-Based Counting:** The system uses Timer1 in ATmega32 with CTC mode to count time, ensuring accurate and reliable time measurement.
 
 - **Multiplexed 7-Segments:** Six common anode 7-segment displays are multiplexed using a 7447 decoder and NPN BJT transistors. This approach minimizes hardware complexity while providing a clear display.
 
